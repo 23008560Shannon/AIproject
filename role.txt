@@ -4,7 +4,7 @@ Main:Shannon Contribution:Jonas,Haikal
 Media Lead	Videos, visuals, branding:
 Main:Syazhuan Contribute: Sarah
 Comms Lead	Slides, reports, writing:
-Main:Haikal Contribute:Jonas,Shannon
+Main:Haikal Contribute:Jonas,Shannon,Sarah
 Data Lead	Retrieval, chunking, testing:
 Main:Jonas Contribute:Syazhuan,Shannon
 QA/Testing Lead	Iteration, demo walkthroughs:
