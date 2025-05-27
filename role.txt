@@ -1,6 +1,6 @@
 Role:
-Solution Lead	Logic, tools, prompt design
-Media Lead	Videos, visuals, branding
-Comms Lead	Slides, reports, writing
-Data Lead	Retrieval, chunking, testing
-QA/Testing Lead	Iteration, demo walkthroughs
+Solution Lead	Logic, tools, prompt design:
+Media Lead	Videos, visuals, branding:
+Comms Lead	Slides, reports, writing:
+Data Lead	Retrieval, chunking, testing:
+QA/Testing Lead	Iteration, demo walkthroughs:
