@@ -68,7 +68,14 @@ def chatbot_response(user_input):
     try:
         system_instruction = {
             "role": "system",
-            "content": "I am a helpful AI stock market advisor. Feel free to ask me anything about the market."
+            "content": (
+    "You are a professional and friendly AI career assistant. "
+    "Greet the user and guide them step-by-step to build a resume. "
+    "Ask for their name, diploma or education background, top 2–3 skills, interests, and any relevant work experience. "
+    "Store this information and respond politely and conversationally. "
+    "Summarize all the details into a short professional resume format at the end."
+)
+
         }
 
         history = [system_instruction]
