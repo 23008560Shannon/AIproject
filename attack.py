@@ -4,15 +4,32 @@ import streamlit as st
 from datetime import datetime
 
 # === Page config ===
-st.set_page_config(page_title="AI Resume Assistant", layout="centered")
+st.set_page_config(page_title="JobGenie: Career Assistant", layout="centered")
 
-# === Red theme CSS ===
+# === Light theme CSS with job-related icons ===
 st.markdown("""
     <style>
-        [data-testid="stSidebar"] {background-color: #ffe6e6;}
-        .css-1v0mbdj, .css-10trblm, .st-emotion-cache-1v0mbdj {color: #b30000 !important;}
-        label, .css-1xarl3l {color: #800000 !important; font-weight: bold;}
-        .stButton>button {background-color: #ffcccc !important; color: #800000 !important; border: 1px solid #cc0000 !important;}
+        [data-testid="stSidebar"] {background-color: #f5faff;}
+        .css-1v0mbdj, .css-10trblm, .st-emotion-cache-1v0mbdj {color: #222222 !important;}
+        label, .css-1xarl3l {color: #222222 !important; font-weight: bold;}
+        .stButton>button {background-color: #e0f7fa !important; color: #222222 !important; border: 1px solid #90caf9 !important;}
+        body, .stApp, .main, .block-container {background-color: #f5faff !important;}
+        /* Decorative job icons in the background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 10%;
+            left: 5%;
+            width: 90vw;
+            height: 80vh;
+            background-image: url('https://img.icons8.com/ios-filled/100/briefcase.png'), url('https://img.icons8.com/ios-filled/100/resume.png'), url('https://img.icons8.com/ios-filled/100/job.png');
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-position: 10% 20%, 80% 60%, 50% 80%;
+            background-size: 80px, 80px, 80px;
+            opacity: 0.07;
+            z-index: 0;
+            pointer-events: none;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -149,6 +166,8 @@ def chatbot_response(user_input):
             st.session_state.resume_ready = True
             st.session_state.resume_summary = generate_resume_summary(data)
             response = "Thank you! Here is your professional resume summary below. You can download it as a text file."
+            # Instantly show the resume and next prompts
+            st.rerun()
         else:
             response = "All information collected. If you want to start over, click 'Clear Chat'."
         return response
@@ -156,8 +175,8 @@ def chatbot_response(user_input):
         return f"Error: {str(e)}"
 
 # === Main UI ===
-st.title("AI Resume Assistant")
-st.write("Build your professional resume step by step through conversation.")
+st.markdown("<h1 style='color:#222222;'>JobGenie: Career Assistant</h1>", unsafe_allow_html=True)
+st.markdown("<p style='color:#222222;'>Build your professional resume step by step through conversation.</p>", unsafe_allow_html=True)
 
 if st.button("Clear Chat / Start Over"):
     reset_resume()
@@ -165,24 +184,43 @@ if st.button("Clear Chat / Start Over"):
 
 for chat in st.session_state.chat_history:
     align = "right" if chat["role"] == "user" else "left"
-    bubble_color = "#ffcccc" if chat["role"] == "user" else "#ffe6e6"
+    bubble_color = "#e0f7fa" if chat["role"] == "user" else "#f5faff"
     st.markdown(f"""
         <div style="text-align: {align};">
             <div style="display: inline-block; background-color: {bubble_color}; padding: 10px; border-radius: 10px; margin: 5px; max-width: 80%; text-align: left;">
-                <p style="margin: 0; color: #660000;">{chat['message']}</p>
-                <span style="font-size: 0.8em; color: #800000;">{chat['timestamp']}</span>
+                <p style="margin: 0; color: #222222;">{chat['message']}</p>
+                <span style="font-size: 0.8em; color: #222222;">{chat.get('timestamp', '')}</span>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
 if st.session_state.resume_ready:
-    st.markdown(st.session_state.resume_summary)
+    st.markdown(f"<div style='color:#222222'>{st.session_state.resume_summary}</div>", unsafe_allow_html=True)
     st.download_button(
         label="Download Resume as Text",
         data=st.session_state.resume_summary,
         file_name="resume_summary.txt",
         mime="text/plain"
     )
+    # Ask if user wants job recommendations
+    if "jobstreet_prompted" not in st.session_state:
+        st.session_state.jobstreet_prompted = False
+    if not st.session_state.jobstreet_prompted:
+        st.markdown("<span style='color:#222222;'>Would you like to see job recommendations from JobStreet Singapore based on your profile?</span>", unsafe_allow_html=True)
+        if st.button("Show JobStreet Recommendations"):
+            st.session_state.jobstreet_prompted = True
+    elif st.session_state.jobstreet_prompted:
+        # Build a JobStreet search URL using skills and interests
+        data = st.session_state.resume_data
+        search_terms = []
+        if data.get("skills"):
+            search_terms.append(data["skills"].replace(",", " "))
+        if data.get("interests"):
+            search_terms.append(data["interests"])
+        query = "+".join([s.replace(" ", "+") for s in search_terms if s])
+        jobstreet_url = f"https://www.jobstreet.com.sg/en/job-search/{query}-jobs/"
+        st.markdown("<span style='color:#222222;'>Here are job recommendations from JobStreet Singapore based on your profile:</span>", unsafe_allow_html=True)
+        st.markdown(f"[View jobs on JobStreet Singapore]({jobstreet_url})")
 else:
     if not st.session_state.chat_history:
         greet = "Hello! I'm your AI career assistant. Let's build your professional resume together. What is your full name?"
@@ -190,12 +228,12 @@ else:
             "role": "bot", "message": greet, "timestamp": datetime.now().strftime('%H:%M')
         })
         align = "left"
-        bubble_color = "#ffe6e6"
+        bubble_color = "#f5faff"
         st.markdown(f"""
             <div style="text-align: {align};">
                 <div style="display: inline-block; background-color: {bubble_color}; padding: 10px; border-radius: 10px; margin: 5px; max-width: 80%; text-align: left;">
-                    <p style="margin: 0; color: #800000;">{greet}</p>
-                    <span style="font-size: 0.8em; color: #b30000;">{datetime.now().strftime('%H:%M')}</span>
+                    <p style="margin: 0; color: #222222;">{greet}</p>
+                    <span style="font-size: 0.8em; color: #222222;">{datetime.now().strftime('%H:%M')}</span>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -208,12 +246,12 @@ else:
                 "role": "user", "message": user_message, "timestamp": chat_time
             })
             align = "right"
-            bubble_color = "#ffcccc"
+            bubble_color = "#e0f7fa"
             st.markdown(f"""
                 <div style="text-align: {align};">
                     <div style="display: inline-block; background-color: {bubble_color}; padding: 10px; border-radius: 10px; margin: 5px; max-width: 80%; text-align: left;">
-                        <p style="margin: 0; color: #660000;">{user_message}</p>
-                        <span style="font-size: 0.8em; color: #800000;">{chat_time}</span>
+                        <p style="margin: 0; color: #222222;">{user_message}</p>
+                        <span style="font-size: 0.8em; color: #222222;">{chat_time}</span>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -225,12 +263,12 @@ else:
                         "role": "bot", "message": bot_response, "timestamp": chat_time
                     })
                     align = "left"
-                    bubble_color = "#ffe6e6"
+                    bubble_color = "#f5faff"
                     st.markdown(f"""
                         <div style="text-align: {align};">
                             <div style="display: inline-block; background-color: {bubble_color}; padding: 10px; border-radius: 10px; margin: 5px; max-width: 80%; text-align: left;">
-                                <p style="margin: 0; color: #800000;">{bot_response}</p>
-                                <span style="font-size: 0.8em; color: #b30000;">{chat_time}</span>
+                                <p style="margin: 0; color: #222222;">{bot_response}</p>
+                                <span style="font-size: 0.8em; color: #222222;">{chat_time}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
